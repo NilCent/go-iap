@@ -107,13 +107,17 @@ func NewWithClient(client *http.Client) *Client {
 }
 
 // Verify sends receipts and gets validation result
-func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interface{}) error {
+func (c *Client) Verify(ctx context.Context, reqBody IAPRequest, result interface{}, isTest bool) error {
 	b := new(bytes.Buffer)
 	if err := json.NewEncoder(b).Encode(reqBody); err != nil {
 		return err
 	}
 
-	req, err := http.NewRequest("POST", c.ProductionURL, b)
+	URL := c.ProductionURL
+	if isTest {
+		URL = c.SandboxURL
+	}
+	req, err := http.NewRequest("POST", URL, b)
 	if err != nil {
 		return err
 	}
